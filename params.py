@@ -1,5 +1,7 @@
 #############################################################
 # * STATIC
+datasetName = "data.csv"
+
 daysInTradeYear = 252
 lossSellPercent = 0.02
 startMoney = 10000

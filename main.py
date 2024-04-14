@@ -5,29 +5,28 @@ import functions
 # library imports
 import pandas as pd
 import matplotlib.pyplot as plt
-import random
 import numpy as np
 
 # unpack data
-df = pd.read_csv('data.csv', delimiter='\t')
-# Ensure your data has the necessary columns
-# Example of preparing additional necessary columns (you will need to adjust this to fit your data specifics)
-df['lag_delta_D'] = df['delta_D'].shift(1)
-df['lag_delta_D_squared'] = df['lag_delta_D'] ** 2
-df['lag2_delta_D_squared'] = df['lag_delta_D'].shift(1) ** 2
+df = pd.read_csv(params.datasetName, delimiter='\t')
 
 # Assuming df is already loaded and ready
 traindf = df.iloc[params.trainTestSplit:]
 testdf = df.iloc[:params.trainTestSplit]
 
 # Call fit_models with the appropriate model type and data slice
-model_outputs = functions.fit_models(traindf, params.methodType)
-betas = np.array([model.params for model in model_outputs.values()]) * params.dampenerMult
+# model_outputs = functions.fit_models(traindf, params.methodType)
+# betas = np.array([model.params for model in model_outputs.values()]) * params.dampenerMult
 
-# ALPHA = 0.51582  * params.dampenerMult
-# BETA1 = -0.04540 * params.dampenerMult
-# BETA2 = 0.05334  * params.dampenerMult
-# BETA3 = 0.03338  * params.dampenerMult
+
+ALPHA = 0.51582  * params.dampenerMult
+BETA1 = -0.04540 * params.dampenerMult
+BETA2 = 0.05334  * params.dampenerMult
+BETA3 = 0.03338  * params.dampenerMult
+
+betas = np.array([ALPHA, BETA1, BETA2, BETA3])
+
+# print(betas)
 
 buyPrices = []
 sellPrices = []
@@ -40,14 +39,13 @@ for e in range(params.epochs):
     workingMoney = params.startMoney
     moneyOverTime = [workingMoney] # track money over time
 
-    # sampled_indices = random.sample(range(len(traindf)), params.daysInTradeYear)
-    # for idx in sampled_indices: # probablistic
+    for idx in range(params.daysInTradeYear*params.numTrainYears, params.daysInTradeYear*(params.numTestYears+params.numTrainYears)): # test n years after train years
 
-    startDay = 0
-    for idx in range(startDay, params.daysInTradeYear*params.numTestYears): # first 252
         
         row = traindf.iloc[idx]  # Get the row corresponding to the index
 
+        print(row)
+        # TODO: proceduralize hi/lo/op/cl conditions based on params.methodType
         open_cl = row['OpenCL']
         high_cl = row['HighCL']
         low_cl = row['LowCL']
